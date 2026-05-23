@@ -70,13 +70,13 @@ export default function IncidentTable() {
     <div className="space-y-4">
       {/* Filters */}
       <div className="bg-white rounded-lg border border-gray-200 p-4">
-        <div className="flex flex-wrap gap-3 items-end">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-3 items-end">
           <div>
             <label className="block text-xs font-medium text-gray-500 mb-1">Month</label>
             <select
               value={filterMonth}
               onChange={(e) => setFilterMonth(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
             >
               <option value="">All months</option>
               {MONTHS.map((m) => (
@@ -90,7 +90,7 @@ export default function IncidentTable() {
             <select
               value={filterYear}
               onChange={(e) => setFilterYear(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
             >
               <option value="">All years</option>
               {years.map((y) => (
@@ -104,7 +104,7 @@ export default function IncidentTable() {
             <select
               value={filterAgency}
               onChange={(e) => setFilterAgency(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
             >
               <option value="">All agencies</option>
               {uniqueAgencies.map((a) => (
@@ -118,7 +118,7 @@ export default function IncidentTable() {
             <select
               value={filterUrgency}
               onChange={(e) => setFilterUrgency(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
             >
               <option value="">All</option>
               <option value="true">Urgent</option>
@@ -131,7 +131,7 @@ export default function IncidentTable() {
             <select
               value={filterSLA}
               onChange={(e) => setFilterSLA(e.target.value)}
-              className="px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+              className="w-full px-3 py-1.5 border border-gray-300 rounded-md text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
             >
               <option value="">All</option>
               <option value="Yes">SLA Met</option>
@@ -200,6 +200,7 @@ export default function IncidentTable() {
             <p>No incidents found</p>
           </div>
         ) : (
+          <p className="md:hidden text-xs text-gray-400 px-4 pt-3 pb-1">← Scroll to see all columns</p>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
