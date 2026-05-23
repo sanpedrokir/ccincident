@@ -200,6 +200,7 @@ export default function IncidentTable() {
             <p>No incidents found</p>
           </div>
         ) : (
+          <div>
           <p className="md:hidden text-xs text-gray-400 px-4 pt-3 pb-1">← Scroll to see all columns</p>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
@@ -260,6 +261,7 @@ export default function IncidentTable() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
         )}
       </div>
