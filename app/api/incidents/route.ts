@@ -81,15 +81,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    let emailStatus: string | null = null;
     if (urgency && data) {
       try {
-        await sendUrgentIncidentEmail(data);
+        const emailResult = await sendUrgentIncidentEmail(data);
+        emailStatus = 'sent';
+        console.log('Urgent email sent:', emailResult);
       } catch (emailError) {
-        console.error('Email send failed (non-fatal):', emailError);
+        const msg = emailError instanceof Error ? emailError.message : String(emailError);
+        emailStatus = `failed: ${msg}`;
+        console.error('Email send failed:', msg);
       }
     }
 
-    return NextResponse.json({ incident: data }, { status: 201 });
+    return NextResponse.json({ incident: data, emailStatus }, { status: 201 });
   } catch (err) {
     console.error('Unexpected error:', err);
     return NextResponse.json(

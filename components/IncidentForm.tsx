@@ -41,6 +41,7 @@ export default function IncidentForm() {
   const [form, setForm] = useState<IncidentFormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [resolutionError, setResolutionError] = useState<string | null>(null);
 
@@ -107,6 +108,7 @@ export default function IncidentForm() {
       }
 
       setSuccess(true);
+      setEmailStatus(data.emailStatus ?? null);
       setForm(defaultForm);
       setResolutionError(null);
     } catch {
@@ -135,7 +137,11 @@ export default function IncidentForm() {
           <div>
             <p className="text-green-800 font-medium">Incident submitted successfully</p>
             <p className="text-green-600 text-sm mt-0.5">
-              The incident has been saved. An email alert was sent if the incident was marked urgent.
+              {emailStatus === 'sent'
+                ? 'Urgent alert email has been sent.'
+                : emailStatus
+                ? `Email status: ${emailStatus}`
+                : 'The incident has been saved.'}
             </p>
           </div>
         </div>
@@ -232,11 +238,10 @@ export default function IncidentForm() {
           </div>
 
           <div className="flex items-start gap-3 pt-6">
-            <div
+            <label
               className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border-2 cursor-pointer transition-all ${
                 form.urgency ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50'
               }`}
-              onClick={() => setForm(prev => ({ ...prev, urgency: !prev.urgency }))}
             >
               <input
                 type="checkbox"
@@ -253,7 +258,7 @@ export default function IncidentForm() {
                   URGENT
                 </span>
               )}
-            </div>
+            </label>
           </div>
         </div>
 

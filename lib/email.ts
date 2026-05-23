@@ -1,11 +1,15 @@
 import { Resend } from 'resend';
 import { Incident } from '@/types/incident';
 
-function getResend(): Resend {
-  return new Resend(process.env.EMAIL_API_KEY || 'placeholder');
+function clean(val: string | undefined): string {
+  return (val || '').replace(/^﻿/, '').trim();
 }
 
-const FROM_EMAIL = () => process.env.EMAIL_FROM || 'onboarding@resend.dev';
+function getResend(): Resend {
+  return new Resend(clean(process.env.EMAIL_API_KEY) || 'placeholder');
+}
+
+const FROM_EMAIL = () => clean(process.env.EMAIL_FROM) || 'onboarding@resend.dev';
 const ALERT_EMAIL = 'sanpedrobeach9@gmail.com';
 
 export async function sendUrgentIncidentEmail(incident: Incident) {
