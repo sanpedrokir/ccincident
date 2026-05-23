@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('Supabase error:', error);
       return NextResponse.json(
-        { error: 'Failed to save incident' },
+        { error: `Database error: ${error.message} (code: ${error.code})` },
         { status: 500 }
       );
     }
@@ -134,7 +134,7 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       return NextResponse.json(
-        { error: 'Failed to fetch incidents' },
+        { error: `Database error: ${error.message} (code: ${error.code})` },
         { status: 500 }
       );
     }
