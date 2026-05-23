@@ -30,11 +30,19 @@ const defaultForm: IncidentFormData = {
   resolution_completion_time: '',
 };
 
+function isResolutionBeforeIncident(form: IncidentFormData): boolean {
+  if (!form.incident_date || !form.time_of_call || !form.resolution_completion_date || !form.resolution_completion_time) return false;
+  const start = new Date(`${form.incident_date}T${form.time_of_call}:00+08:00`);
+  const end = new Date(`${form.resolution_completion_date}T${form.resolution_completion_time}:00+08:00`);
+  return end <= start;
+}
+
 export default function IncidentForm() {
   const [form, setForm] = useState<IncidentFormData>(defaultForm);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [resolutionError, setResolutionError] = useState<string | null>(null);
 
   const todaySGT = new Date().toLocaleDateString('en-SG', {
     timeZone: 'Asia/Singapore',
@@ -44,20 +52,42 @@ export default function IncidentForm() {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value, type } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]:
-        type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
-    }));
+    const updated = {
+      ...form,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value,
+    };
+    setForm(updated);
+
+    // Validate resolution vs incident datetime whenever any of the 4 fields change
+    if (['incident_date', 'time_of_call', 'resolution_completion_date', 'resolution_completion_time'].includes(name)) {
+      if (
+        updated.incident_date &&
+        updated.time_of_call &&
+        updated.resolution_completion_date &&
+        updated.resolution_completion_time
+      ) {
+        if (isResolutionBeforeIncident(updated)) {
+          setResolutionError('Resolution date/time must be after the date and time of incident.');
+        } else {
+          setResolutionError(null);
+        }
+      } else {
+        setResolutionError(null);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isResolutionBeforeIncident(form)) {
+      setResolutionError('Resolution date/time must be after the date and time of incident.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setSuccess(false);
@@ -78,12 +108,22 @@ export default function IncidentForm() {
 
       setSuccess(true);
       setForm(defaultForm);
+      setResolutionError(null);
     } catch {
       setError('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
   };
+
+  // Min date for resolution = incident date (can't pick earlier date in calendar)
+  const resolutionDateMin = form.incident_date || undefined;
+  // Min time for resolution = time of call, only when same date is selected
+  const resolutionTimeMin =
+    form.resolution_completion_date && form.incident_date &&
+    form.resolution_completion_date === form.incident_date
+      ? form.time_of_call || undefined
+      : undefined;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
@@ -120,13 +160,13 @@ export default function IncidentForm() {
         </span>
       </div>
 
-      {/* VVIP & Engineer Details */}
+      {/* Parties Involved */}
       <div className="bg-white rounded-lg border border-gray-200 p-6 space-y-4">
         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Parties Involved</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              VVIP Name <span className="text-red-500">*</span>
+              Customer Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
@@ -192,9 +232,10 @@ export default function IncidentForm() {
           </div>
 
           <div className="flex items-start gap-3 pt-6">
-            <div className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border-2 cursor-pointer transition-all ${
-              form.urgency ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50'
-            }`}
+            <div
+              className={`flex items-center gap-3 px-4 py-2.5 rounded-lg border-2 cursor-pointer transition-all ${
+                form.urgency ? 'border-red-400 bg-red-50' : 'border-gray-200 bg-gray-50'
+              }`}
               onClick={() => setForm(prev => ({ ...prev, urgency: !prev.urgency }))}
             >
               <input
@@ -272,7 +313,10 @@ export default function IncidentForm() {
               value={form.resolution_completion_date}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent"
+              min={resolutionDateMin}
+              className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent ${
+                resolutionError ? 'border-red-400 bg-red-50' : 'border-gray-300'
+              }`}
             />
           </div>
           <div>
@@ -285,13 +329,26 @@ export default function IncidentForm() {
               value={form.resolution_completion_time}
               onChange={handleChange}
               required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent"
+              min={resolutionTimeMin}
+              className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:border-transparent ${
+                resolutionError ? 'border-red-400 bg-red-50' : 'border-gray-300'
+              }`}
             />
           </div>
         </div>
 
+        {/* Resolution validation error */}
+        {resolutionError && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-200 rounded-lg">
+            <svg className="w-4 h-4 text-red-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm text-red-700">{resolutionError}</p>
+          </div>
+        )}
+
         {/* SLA preview */}
-        {form.incident_date && form.time_of_call && form.resolution_completion_date && form.resolution_completion_time && (
+        {form.incident_date && form.time_of_call && form.resolution_completion_date && form.resolution_completion_time && !resolutionError && (
           <SLAPreview form={form} />
         )}
       </div>
@@ -299,7 +356,7 @@ export default function IncidentForm() {
       <div className="flex justify-end">
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || !!resolutionError}
           className="px-6 py-2.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#162d4a] focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
         >
           {loading ? (
