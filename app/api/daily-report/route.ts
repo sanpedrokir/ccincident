@@ -7,10 +7,13 @@ const TARGET_AGENCIES = ['MOF', 'MOM'];
 // Triggered by Vercel Cron at 14:00 UTC = 22:00 SGT
 // vercel.json cron: "0 14 * * *"
 export async function GET(request: NextRequest) {
-  // Protect the cron endpoint
-  const authHeader = request.headers.get('authorization');
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Protect the cron endpoint (skip check if CRON_SECRET not configured)
+  const cronSecret = (process.env.CRON_SECRET || '').trim();
+  if (cronSecret) {
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${cronSecret}`) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
   }
 
   try {
