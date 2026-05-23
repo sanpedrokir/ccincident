@@ -180,7 +180,7 @@ export default function IncidentForm() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              VVIP Agency Name <span className="text-red-500">*</span>
+              Customer Agency Name <span className="text-red-500">*</span>
             </label>
             <input
               type="text"
