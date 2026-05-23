@@ -205,7 +205,7 @@ export default function IncidentTable() {
               <thead className="bg-gray-50">
                 <tr>
                   {[
-                    'VVIP Name', 'Agency', 'Engineer', 'Incident Type',
+                    'Customer Name', 'Agency', 'Engineer', 'Incident Type',
                     'Detail', 'Urgency', 'Incident Date', 'Call Time',
                     'Resolution Date', 'Resolution Time', 'Entry Date', 'SLA Met',
                   ].map((h) => (

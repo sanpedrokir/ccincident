@@ -35,7 +35,9 @@ export interface MonthlyReportData {
   month: string;
   year: string;
   totalIncidents: number;
+  urgentCount: number;
   topIncidentTypes: { type: string; count: number }[];
+  agencyBreakdown: { agency: string; count: number }[];
   slaBreaches: number;
   slaMet: number;
   aiSummary: string;

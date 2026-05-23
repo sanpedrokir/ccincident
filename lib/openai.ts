@@ -43,23 +43,35 @@ export async function generateMonthlyAISummary(
     .map(([agency, count]) => `${agency}: ${count}`)
     .join(', ');
 
-  const prompt = `You are a professional IT service management analyst writing a concise management summary for a VVIP incident report.
+  const incidentLines = incidents.map((inc, i) =>
+    `Incident ${i + 1}: Customer: ${inc.vvip_name}, Agency: ${inc.vvip_agency_name}, Type: ${inc.incident_type}, Detail: ${inc.incident_detail}, Urgent: ${inc.urgency ? 'Yes' : 'No'}, SLA Met: ${inc.sla_met}, Date: ${inc.incident_date}`
+  ).join('\n');
 
-Data for ${month} ${year}:
-- Total incidents: ${totalIncidents}
-- Urgent incidents: ${urgentCount}
-- SLA Met: ${slaMet} (${totalIncidents > 0 ? Math.round((slaMet / totalIncidents) * 100) : 0}%)
-- SLA Breached: ${slaBreaches}
-- Top incident types: ${topTypes || 'N/A'}
-- Incidents by agency: ${agencySummary || 'N/A'}
+  const prompt = `You are a professional IT service management analyst writing a monthly incident report for the Customer Care (CC) engineering team.
 
-Write a professional 3-4 paragraph management summary covering:
-1. Overall incident volume and urgency level
-2. Most common incident types and patterns
-3. SLA performance assessment
-4. Key observations or recommendations
+Period: ${month} ${year}
+Total incidents: ${totalIncidents} | Urgent: ${urgentCount} | SLA Met: ${slaMet} (${totalIncidents > 0 ? Math.round((slaMet / totalIncidents) * 100) : 0}%) | SLA Breached: ${slaBreaches}
+Top incident types: ${topTypes || 'N/A'}
+Incidents by agency: ${agencySummary || 'N/A'}
 
-Use only the data provided. Be concise, factual, and professional. Do not invent data.`;
+Individual incidents:
+${incidentLines || 'No incidents recorded.'}
+
+Write a structured management summary with these sections:
+
+**Overview**
+One paragraph on overall incident volume, urgency level, and month's activity.
+
+**Individual Incident Analysis**
+For each incident, write a short dedicated paragraph (2-3 sentences) describing what happened, the customer/agency affected, and whether SLA was met. Clearly separate each incident.
+
+**SLA Performance**
+One paragraph assessing SLA compliance for the month.
+
+**Observations & Recommendations**
+One paragraph with key patterns noticed and actionable recommendations.
+
+Use only the data provided. Be concise, professional, and factual.`;
 
   try {
     const completion = await client.chat.completions.create({
