@@ -41,3 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 .vercel
+
+# local dev copy (app lives at repo root)
+/pccs-app/
+/BUILD_JOURNAL.md
