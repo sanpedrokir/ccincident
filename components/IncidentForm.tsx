@@ -253,6 +253,7 @@ export default function IncidentForm() {
               <span className={`text-sm font-medium ${form.urgency ? 'text-red-700' : 'text-gray-600'}`}>
                 Mark as Urgent
               </span>
+              <span className="text-xs text-gray-400 font-normal">(An email will be sent to DD for an urgent case)</span>
               {form.urgency && (
                 <span className="bg-red-100 text-red-700 text-xs px-2 py-0.5 rounded-full font-semibold">
                   URGENT
