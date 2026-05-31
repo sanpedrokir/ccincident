@@ -96,9 +96,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ incident: data, emailStatus }, { status: 201 });
   } catch (err) {
-    console.error('Unexpected error:', err);
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Unexpected error:', msg);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: `Internal server error: ${msg}` },
       { status: 500 }
     );
   }
